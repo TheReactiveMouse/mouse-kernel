@@ -121,7 +121,7 @@ namespace mouseKernel
             Console.WriteLine("[OK] Started Authentication Manager.");
             Console.Write("Username:");
             username = Console.ReadLine();
-            if (username == "root" || username == "mouse" || username != "")
+            if (username == "root" || username == "mouse")
             {
                 Console.Write("Password: "); // Снова тести
                 string password = ReadPassword(); // пробуй
@@ -135,7 +135,7 @@ namespace mouseKernel
                 }
             } else
             {
-                BeforeRun();
+                username = "guest";
             }
         }
         public static string ReadPassword()
@@ -334,7 +334,6 @@ namespace mouseKernel
                 } 
                 catch (Exception error_code)
                 {
-                    Console.WriteLine($"You are using arguments? Try --help!");
                 }
                 }
             if (consoleIn[0] == "passwd")
