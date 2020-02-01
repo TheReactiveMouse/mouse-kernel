@@ -1,13 +1,4 @@
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-// WARNING THIS PROJECT IS USING GPL/GNU LICENSE! PLEASE READ FILE LICENSE!
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using Sys = Cosmos.System;
@@ -130,7 +121,7 @@ namespace mouseKernel
             Console.WriteLine("[OK] Started Authentication Manager.");
             Console.Write("Username:");
             username = Console.ReadLine();
-            if (username == "root" || username == "mouse")
+            if (username == "root" || username == "mouse" || username != "")
             {
                 Console.Write("Password: "); // Снова тести
                 string password = ReadPassword(); // пробуй
@@ -142,6 +133,9 @@ namespace mouseKernel
                     Console.WriteLine("Incorrect login or password.");
                     BeforeRun();
                 }
+            } else
+            {
+                BeforeRun();
             }
         }
         public static string ReadPassword()
@@ -195,14 +189,20 @@ namespace mouseKernel
                 }
                 else
                 {
-                    long DATA_RESULT_MINUS = Convert.ToInt64(value1) - Convert.ToInt64(value2);
-                    long DATA_RESULT_PLUS = Convert.ToInt32(value1) + Convert.ToInt32(value2);
-                    long DATA_RESULT_OPERANT_TREE = Convert.ToInt32(value1) / Convert.ToInt32(value2);
-                    long DATA_RESULT_DOUBLE_TREE = Convert.ToInt32(value1) * Convert.ToInt32(value2);
-                    Console.WriteLine($"{value1} + {value2} = {DATA_RESULT_PLUS}");
-                    Console.WriteLine($"{value1} - {value2} = {DATA_RESULT_MINUS}");
-                    Console.WriteLine($"{value1} / {value2} = {DATA_RESULT_OPERANT_TREE}");
-                    Console.WriteLine($"{value1} * {value2} = {DATA_RESULT_DOUBLE_TREE}");
+                    try
+                    {
+                        long DATA_RESULT_MINUS = Convert.ToInt64(value1) - Convert.ToInt64(value2);
+                        long DATA_RESULT_PLUS = Convert.ToInt32(value1) + Convert.ToInt32(value2);
+                        long DATA_RESULT_OPERANT_TREE = Convert.ToInt32(value1) / Convert.ToInt32(value2);
+                        long DATA_RESULT_DOUBLE_TREE = Convert.ToInt32(value1) * Convert.ToInt32(value2);
+                        Console.WriteLine($"{value1} + {value2} = {DATA_RESULT_PLUS}");
+                        Console.WriteLine($"{value1} - {value2} = {DATA_RESULT_MINUS}");
+                        Console.WriteLine($"{value1} / {value2} = {DATA_RESULT_OPERANT_TREE}");
+                        Console.WriteLine($"{value1} * {value2} = {DATA_RESULT_DOUBLE_TREE}");
+                    } catch (Exception error)
+                    {
+                        Console.WriteLine("Required valid value.");
+                    }
                 }
 
             }
@@ -251,7 +251,7 @@ namespace mouseKernel
                 }
                 catch (Exception error)
                 {
-                    Console.WriteLine($"ERROR : {error}, send this error to developer and don't try fix manually.");
+                    Console.WriteLine($"ERROR : You are using folder name?");
                 }
             }
 
@@ -385,29 +385,33 @@ namespace mouseKernel
                 String package_name = consoleIn[4];
 
                 // executing
-
-                if (type_request == "MOUSE_TAX_REQUEST")
+                try
                 {
-                    if (address == "76.0")
+                    if (type_request == "MOUSE_TAX_REQUEST")
                     {
-                        if (package_size.Length > 5)
+                        if (address == "76.0")
                         {
-                            Console.WriteLine("Request error: Size is too many big.");
-                        }
-                        else
-                        {
-                            if (package_name == "" || package_name.Length > 5)
+                            if (package_size.Length > 5)
                             {
-                                Console.WriteLine("Package type is not supported.Or not entered.");
+                                Console.WriteLine("Request error: Size is too many big.");
                             }
                             else
                             {
-                                Console.WriteLine($"Request accept: {package_name.GetHashCode()}.{package_size.GetHashCode()}");
+                                if (package_name == "" || package_name.Length > 5)
+                                {
+                                    Console.WriteLine("Package type is not supported.Or not entered.");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Request accept: {package_name.GetHashCode()}.{package_size.GetHashCode()}");
+                                }
                             }
                         }
                     }
+                } catch (Exception error)
+                {
+                    Console.WriteLine("Command is need argument.");
                 }
-
             }
             }
 
