@@ -286,7 +286,7 @@ namespace mouseKernel
                 }
                 catch (Exception error)
                 {
-                    Console.WriteLine($"ERROR : {error}, send this error to developer and don't try fix manually.");
+                    Console.WriteLine($"ERROR : You are using file name?");
                 }
             }
            
@@ -334,7 +334,7 @@ namespace mouseKernel
                 } 
                 catch (Exception error_code)
                 {
-                    Console.WriteLine($"FATAL ERROR : {error_code}");
+                    Console.WriteLine($"You are using arguments? Try --help!");
                 }
                 }
             if (consoleIn[0] == "passwd")
@@ -377,16 +377,14 @@ namespace mouseKernel
 
             if (consoleIn[0] == "request")
             {
-                // mouse package.
-
-                String type_request = consoleIn[1];
-                String address = consoleIn[2];
-                String package_size = consoleIn[3];
-                String package_name = consoleIn[4];
 
                 // executing
                 try
                 {
+                    String type_request = consoleIn[1];
+                    String address = consoleIn[2];
+                    String package_size = consoleIn[3];
+                    String package_name = consoleIn[4];
                     if (type_request == "MOUSE_TAX_REQUEST")
                     {
                         if (address == "76.0")
