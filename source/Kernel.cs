@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 using Sys = Cosmos.System;
 using System.Threading;
+using System.Timers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Office.CustomUI;
 using DocumentFormat.OpenXml.Spreadsheet;
+using System.Threading.Tasks;
+using System.Data;
 
 namespace mouseKernel
 {
@@ -94,7 +97,6 @@ namespace mouseKernel
             new OSData("MouseOS", new Version(0, 0, 0, 0, 1)),
             new User("Administrator", 7));
             // Init done.
-
             Console.WriteLine("Creating filesystem in memory...");
             data_fs.Add("coreboot.yml");
             data_fs.Add("kernel.bin");
@@ -115,10 +117,21 @@ namespace mouseKernel
             uint memory = Cosmos.Core.CPU.GetAmountOfRAM();
             string processor_author = Cosmos.Core.ProcessorInformation.GetVendorName();
             Console.WriteLine("Memory intiailzated as " + MEMORY_ACCEPTED + "MB");
-            Console.WriteLine(DateTime.Now); 
+            Console.WriteLine(DateTime.Now);
             string key_private = Convert.ToString(rnd.Next(1024, 2048));
-            Console.WriteLine("[mouseFS] mouseFS Is started.. FS Key is" + key_private.GetHashCode() );
+            Console.WriteLine("[mouseFS] mouseFS Is started.. FS Key is" + key_private.GetHashCode());
             Console.WriteLine("[OK] Started Authentication Manager.");
+            Console.WriteLine("[OK] Started RAID Service");
+            Console.WriteLine("[OK] Started 2Myboot Manager");
+            Console.WriteLine("[OK] Started X2Fire");
+            Console.WriteLine("[OK] Started XServer");
+            Console.WriteLine("[ERROR] XServer not found graphical interface. Required install GUI to use X");
+            Console.WriteLine("[OK] Started Firewall");
+            Console.WriteLine("[OK] Started HDDManager");
+            Console.WriteLine("[OK] Started RAIDController");
+            Console.WriteLine("[OK] Started VIRTIO");
+            Console.WriteLine("[ERROR] Error, Network driver is not started.");
+            Console.WriteLine("[WARN] Nginx server is cannot be loaded");
             Console.Write("Username:");
             username = Console.ReadLine();
             if (username == "root" || username == "mouse")
@@ -127,17 +140,20 @@ namespace mouseKernel
                 string password = ReadPassword(); // пробуй
                 if (password == REAL_ADMIN_PASSWORD) // пашет?
                 {
-                    Console.WriteLine($"Welcome, {username.GetHashCode()}!");
-                } else
+                    Console.WriteLine($"Welcome, {username}!");
+                }
+                else
                 {
                     Console.WriteLine("Incorrect login or password.");
                     BeforeRun();
                 }
-            } else
+            }
+            else
             {
                 username = "guest";
             }
         }
+
         public static string ReadPassword()
         {
             string password = "";
@@ -176,6 +192,71 @@ namespace mouseKernel
                 Console.WriteLine(DateTime.Now);
             }
 
+            if (consoleIn[0] == "del")
+            {
+
+                try
+                {
+                    Console.WriteLine("Searching...");
+                    if (data_fs.Contains(consoleIn[1]))
+                    {
+                        int first_value = rnd.Next(1824,8695);
+                        int two_value = rnd.Next(8496,19205);
+                        int true_value = first_value + two_value;
+                        Console.Write($"{consoleIn[1]} Found! Captcha, {first_value}+{two_value} = ?");
+                        string value_accept = Console.ReadLine();
+                        if (value_accept == Convert.ToString(true_value) )
+                        {
+                            Console.WriteLine($"File {consoleIn[1]} deleted");
+                            data_fs.Remove(consoleIn[1]);
+                        } else
+                        {
+                            Console.WriteLine("False. True value is " + true_value);
+                        }
+                    } else
+                    {
+                        Console.WriteLine("File not found! If you want delete folder, use del.folder");
+                    }
+                } catch (Exception error)
+                {
+                    Console.WriteLine("Required arguments.");
+                }
+
+            }
+
+            if (consoleIn[0] == "del.folder")
+            {
+                try
+                {
+                    Console.WriteLine("Searching...");
+                    if (data_fs.Contains($"{consoleIn[1]} [FOLDER]"))
+                    {
+                        int first_value = rnd.Next(1824, 8695);
+                        int two_value = rnd.Next(8496, 19205);
+                        int true_value = first_value + two_value;
+                        Console.Write($"{consoleIn[1]} Found! Captcha, {first_value}+{two_value} = ?");
+                        string value_accept = Console.ReadLine();
+                        if (value_accept == Convert.ToString(true_value))
+                        {
+                            Console.WriteLine($"Folder {consoleIn[1]} deleted");
+                            data_fs.Remove($"{consoleIn[1]} [FOLDER]");
+                        }
+                        else
+                        {
+                            Console.WriteLine("False. True value is " + true_value);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("folder not found! If you want delete file, use del");
+                    }
+                }
+                catch (Exception error)
+                {
+                    Console.WriteLine("Required arguments.");
+                }
+            }
+
             if (consoleIn[0] == "math")
             {
                 // Using processor power. Without video calculating.
@@ -199,7 +280,8 @@ namespace mouseKernel
                         Console.WriteLine($"{value1} - {value2} = {DATA_RESULT_MINUS}");
                         Console.WriteLine($"{value1} / {value2} = {DATA_RESULT_OPERANT_TREE}");
                         Console.WriteLine($"{value1} * {value2} = {DATA_RESULT_DOUBLE_TREE}");
-                    } catch (Exception error)
+                    }
+                    catch (Exception error)
                     {
                         Console.WriteLine("Required valid value.");
                     }
@@ -240,10 +322,11 @@ namespace mouseKernel
                 try
                 {
                     string foldername = consoleIn[1];
-                    if (foldername == "" || data_fs.Contains($"{foldername} [FOLDER]"))
+                    if (foldername == "" || data_fs.Contains($"{foldername}"))
                     {
                         Console.WriteLine("Error : Required valid name for this operation.");
-                    } else
+                    }
+                    else
                     {
                         data_fs.Add(foldername + " [FOLDER]");
                         Console.WriteLine("Ok.");
@@ -264,21 +347,24 @@ namespace mouseKernel
                     if (filename == "" || filename.Length < 1 || data_fs.Contains($"{filename}"))
                     {
                         Console.WriteLine("Error : Required valid name for this operation.");
-                    } 
+                    }
                     else
                     {
                         Console.WriteLine("File is created successfully.");
                         if (filename.Contains(".txt"))
                         {
-                            data_fs.Add($"{filename} [ Text document ]");
-                        } else
+                            data_fs.Add($"{filename}");
+
+                        }
+                        else
                         {
                             if (filename.Contains(".sql"))
                             {
-                                data_fs.Add($"{filename} [ Data Base/ SQL File ]");
-                            } else
+                                data_fs.Add($"{filename}");
+                            }
+                            else
                             {
-                                data_fs.Add($"{filename} [ Unknown file type. ]");
+                                data_fs.Add($"{filename}");
                             }
                         }
                     }
@@ -289,12 +375,12 @@ namespace mouseKernel
                     Console.WriteLine($"ERROR : You are using file name?");
                 }
             }
-           
+
             if (consoleIn[0] == "about")
             {
-                Console.WriteLine("mouseKernel Developers Pre-Alpha 1.0 ");
+                Console.WriteLine("mouseKernel Alpha 1.0 ");
                 Console.WriteLine("Authors");
-               // хм... щас подумаем...
+                // хм... щас подумаем...
                 Console.WriteLine("Mouse#3040 - Discord");
                 Console.WriteLine("sudo#4677 - Discord");
                 Console.WriteLine("artem6191#7777 - Discord");
@@ -331,11 +417,11 @@ namespace mouseKernel
                             Cosmos.Core.ACPI.Reboot();
                         }
                     }
-                } 
+                }
                 catch (Exception error_code)
                 {
                 }
-                }
+            }
             if (consoleIn[0] == "passwd")
             {
                 if (username != "root" || username != "mouse")
@@ -350,7 +436,8 @@ namespace mouseKernel
                         if (new_pass.Length < 8 || new_pass == "")
                         {
                             Console.WriteLine("Required password with 8 symbols.It's minimal!");
-                        } else
+                        }
+                        else
                         {
                             Console.Write("Repeat password:");
                             string new_pass_repeat = ReadPassword();
@@ -358,13 +445,15 @@ namespace mouseKernel
                             {
                                 Console.WriteLine("Ok.");
                                 REAL_ADMIN_PASSWORD = new_pass;
-                            } else
+                            }
+                            else
                             {
                                 Console.WriteLine("New password is not correct. Try again.");
                             }
                         }
                     }
-                } else
+                }
+                else
                 {
                     Console.WriteLine("User don't have password currently.");
                 }
@@ -405,16 +494,19 @@ namespace mouseKernel
                             }
                         }
                     }
-                } catch (Exception error)
+                }
+                catch (Exception error)
                 {
                     Console.WriteLine("Command is need argument.");
                 }
             }
-            }
+        }
+
 
         public int hours = 0;
         public string username_login;
         public string username;
+        private static System.Timers.Timer sleep_arg;
         public uint MEMORY_ACCEPTED = Cosmos.Core.CPU.GetAmountOfRAM() + 1;
         public string REAL_ADMIN_PASSWORD = "thereactivecheese"; // топ пароль
         List<string> data_fs = new List<string>();
