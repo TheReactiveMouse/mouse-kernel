@@ -314,6 +314,7 @@ namespace mouseKernel
                 Console.WriteLine("passwd - change password");
                 Console.WriteLine("Logout - Break this session and go to Authentication Manager.");
                 Console.WriteLine("request - Mouses function. Requests to mouse render function");
+                Console.WriteLine("del - Delete file");
 
             }
 
