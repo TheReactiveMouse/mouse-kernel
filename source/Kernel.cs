@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml.Office.CustomUI;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Threading.Tasks;
 using System.Data;
+using Cosmos.System.Graphics;
 
 namespace mouseKernel
 {
@@ -123,6 +124,8 @@ namespace mouseKernel
             Console.WriteLine("[OK] Started Authentication Manager.");
             Console.WriteLine("[OK] Started RAID Service");
             Console.WriteLine("[OK] Started 2Myboot Manager");
+
+
             Console.WriteLine("[OK] Started X2Fire");
             Console.WriteLine("[OK] Started XServer");
             Console.WriteLine("[ERROR] XServer not found graphical interface. Required install GUI to use X");
@@ -185,7 +188,7 @@ namespace mouseKernel
         protected override void Run()
         {
             Console.Write($"{username}@system~>");
-            string[] consoleIn = Console.ReadLine().Split(' ');
+            string[] consoleIn = Console.ReadLine().Split(" ");
             if (consoleIn.Length == 0) return;
             if (consoleIn[0] == "time")
             {
@@ -307,14 +310,14 @@ namespace mouseKernel
                 Console.WriteLine("time - Get time now.");
                 Console.WriteLine("mem - Memory available now on your pc.");
                 Console.WriteLine("files - files is virtual filesystem.");
-                Console.WriteLine("mkdir - create new folder");
-                Console.WriteLine("touch - new file");
+                Console.WriteLine("mkdir foldername - create new folder");
+                Console.WriteLine("touch filename contents - new file");
                 Console.WriteLine("about - About kernel.");
                 Console.WriteLine("power - Working with ACPI Functions. ");
                 Console.WriteLine("passwd - change password");
                 Console.WriteLine("Logout - Break this session and go to Authentication Manager.");
-                Console.WriteLine("request - Mouses function. Requests to mouse render function");
-                Console.WriteLine("del - Delete file");
+                Console.WriteLine("request REQUEST_TYPE SIZE_BLOCK REQUEST_SIZE DATA_SIZE - Mouses function. Requests to mouse render function");
+                Console.WriteLine("del filename - Delete file");
 
             }
 
@@ -344,7 +347,7 @@ namespace mouseKernel
                 try
                 {
                     string filename = consoleIn[1];
-
+                    string text_file = consoleIn[2];
                     if (filename == "" || filename.Length < 1 || data_fs.Contains($"{filename}"))
                     {
                         Console.WriteLine("Error : Required valid name for this operation.");
@@ -355,17 +358,19 @@ namespace mouseKernel
                         if (filename.Contains(".txt"))
                         {
                             data_fs.Add($"{filename}");
-
+                            data_files += $"{filename} = {text_file}\n";
                         }
                         else
                         {
                             if (filename.Contains(".sql"))
                             {
                                 data_fs.Add($"{filename}");
+                                data_files += $"{filename} = {text_file}\n";
                             }
                             else
                             {
                                 data_fs.Add($"{filename}");
+                                data_files += $"{filename} = {text_file}\n";
                             }
                         }
                     }
@@ -373,7 +378,52 @@ namespace mouseKernel
                 }
                 catch (Exception error)
                 {
-                    Console.WriteLine($"ERROR : You are using file name?");
+                    Console.WriteLine($"ERROR : You are using file name and file contents?");
+                }
+            }
+
+            if (consoleIn[0] == "sh")
+            {
+                try
+                {
+                    string filename = consoleIn[1];
+                    if (filename == "" || filename.Length < 1)
+                    {
+                        Console.WriteLine("Error : Required valid name for this operation.");
+                    }
+                    else
+                    {
+                        string[] result = data_files.Split($"{ consoleIn[1] } = ");
+                        if (result[1].Contains("mouse.kernel()"))
+                        {
+                            Console.WriteLine("mouseSH 1.0");
+                        }
+                        if (result[1].Contains("mouse.memory()"))
+                        {
+                            Console.WriteLine( Cosmos.Core.CPU.GetAmountOfRAM() + 1 );
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("You are using valid filename or code?");
+                }
+
+            }
+            if (consoleIn[0] == "cat")
+            {
+                if (data_fs.Contains($"{consoleIn[1]}") || data_fs.Contains($"{consoleIn[1]}.sql") || data_fs.Contains($"{consoleIn[1]}.txt"))
+                {
+                    string[] result = data_files.Split($"{ consoleIn[1] } = ");
+                    //Console.WriteLine(Convert.ToString(result[1]) );
+                    if (result[1] == "")
+                    {
+                        Console.WriteLine($"{result[1]}");
+                    } else
+                    {
+                        Console.WriteLine(result[1].Split("\n")[0]);
+
+                    }
                 }
             }
 
@@ -415,7 +465,7 @@ namespace mouseKernel
                         }
                         if (operation == "--reboot" || operation == "-reboot")
                         {
-                            Cosmos.Core.ACPI.Reboot();
+                            Cosmos.HAL.Power.CPUReboot();
                         }
                     }
                 }
@@ -501,6 +551,12 @@ namespace mouseKernel
                     Console.WriteLine("Command is need argument.");
                 }
             }
+            if (consoleIn[0] == "startx")
+            {
+                Canvas canvas;
+                canvas = FullScreenCanvas.GetFullScreenCanvas();
+                canvas.Clear();
+            }
         }
 
 
@@ -511,6 +567,7 @@ namespace mouseKernel
         public uint MEMORY_ACCEPTED = Cosmos.Core.CPU.GetAmountOfRAM() + 1;
         public string REAL_ADMIN_PASSWORD = "thereactivecheese"; // топ пароль
         List<string> data_fs = new List<string>();
+        string data_files;
         public string ip;
         public string host;
         public string dns;
