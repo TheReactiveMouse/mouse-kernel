@@ -520,7 +520,10 @@ namespace mouseKernel
                         }
                     }
                 }
-
+                if (consoleIn[0] == "clear")
+                {
+                    Console.Clear();
+                }
 
             } catch (Exception CRASH_CODE)
             {
