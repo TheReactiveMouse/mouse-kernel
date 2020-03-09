@@ -1,6 +1,11 @@
 # mouse-kernel
-Mouse Kernels archive.
+Mouse Kernels Archive with Source
 
-Writtened on Visual Studio C and Library Cosmos!
+---------------------------------
 
-Thanks for reading this text.
+Works with FAT32 Partition, 1 Disk.
+
+Created for more simple creating own system. 
+
+Works on X86/64 Intel, AMD Processors.
+
